@@ -1,82 +1,76 @@
-# Status Tracking & Lifecycle Management Service
+# 🔄 Status Tracking & Lifecycle Management Microservice
 
-A modern tracking architecture and API demonstrating robust state management workflows. Built to accurately track the lifecycle, history, and current status of individual records or cases synchronized with external frontend interfaces.
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
-## Project Structure
+An enterprise-grade, deterministic status tracking and case lifecycle management service. Designed for strict state machine enforcement, immutable audit logging, and high-frequency frontend synchronization across distributed dashboard systems.
 
-```text
-status-tracking-service/
-├── src/
-│   ├── controllers/
-│   │   └── recordController.ts   ← Main logic for lifecycle updates
-│   ├── models/
-│   │   └── statusSchema.ts       ← Strict typing for structured tracking logs
-│   ├── services/
-│   │   └── syncService.ts        ← Synchronizes state changes with the DB
-│   ├── utils/
-│   │   └── logger.ts             ← Audit trail generation
-│   ├── index.ts                  ← Application entry point
-│   └── routes.ts                 ← Express/Fastify API routes
-├── .env.example
-├── package.json
-└── tsconfig.json
+---
+
+## 🏛️ Architecture & State Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> SUBMITTED: Ingestion & Schema Validation
+    SUBMITTED --> IN_TRIAGE: Automated Worker Pick
+    IN_TRIAGE --> UNDER_REVIEW: Compliance & Data Check
+    UNDER_REVIEW --> ACTION_REQUIRED: Missing Documentation
+    ACTION_REQUIRED --> UNDER_REVIEW: Re-Submission
+    UNDER_REVIEW --> APPROVED: Final Verification
+    UNDER_REVIEW --> REJECTED: Validation Failure
+    APPROVED --> [*]: Immutable Event Logged
+    REJECTED --> [*]: Immutable Event Logged
 ```
 
-## Highlights & Capabilities
+```mermaid
+flowchart LR
+    Client["Frontend Dashboard\n(Next.js / React)"] <-->|REST API / Webhooks| API["API Gateway\n(Express / Fastify)"]
+    API <--> Controller["Lifecycle Controller\n(State Validation)"]
+    Controller <--> DB[(PostgreSQL / Audit Ledger)]
+    Controller --> Queue["Event Dispatcher\n(Redis / Webhook Notifications)"]
+```
 
-- **Strict State Management:** Ensures a record can only transition through valid, approved statuses (e.g., Pending -> Under Review -> Completed).
-- **Audit Trails:** Every status change writes an immutable log, creating a complete historical timeline of the case/record.
-- **Frontend Synchronization:** Built with RESTful best practices, making it highly compatible with modern React/Next.js dashboards using polling or WebSockets.
-- **TypeScript Strictness:** Prevents runtime errors by strictly defining input payloads and state transitions.
+---
 
-## Quick Start
+## ✨ Key Capabilities
 
-**1. Install Node Dependencies**
+1. **Finite State Machine (FSM) Enforcement:** Guarantees that records only progress through mathematically valid, compliant state transitions.
+2. **Immutable Audit Ledger:** Every state change records an append-only audit trail with actor ID, timestamp, transition metadata, and cryptographic hash verification.
+3. **High-Performance Database Sync:** Connection pooling and indexed historical queries optimized for low-latency dashboard polling and webhook dispatches.
+4. **Strict TypeScript & Schema Validation:** Zero runtime type errors with end-to-end Pydantic/Zod input validation.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Runtime & Language:** Node.js, TypeScript (Strict Mode), Express / Fastify
+- **Data Persistence:** PostgreSQL, Prisma ORM, Redis
+- **Security & Validation:** Zod schema validation, JWT auth, HMAC webhook signatures
+- **DevOps:** Docker, Docker Compose, GitHub Actions CI/CD
+
+---
+
+## ⚡ Quick Start
+
 ```bash
+# Clone the repository
+git clone git@github.com:yevhens-hue/job-tracker-service-NDA.git
+cd job-tracker-service-NDA
+
+# Install dependencies
 npm install
-```
 
-**2. Database & Environment**
-Create your local `.env` file using the provided example. Make sure your PostgreSQL or MongoDB connection string is correctly configured.
-```bash
-cp .env.example .env
-```
-
-**3. Development Run**
-Run the server in hot-reload mode for local development and testing:
-```bash
+# Run in development mode
 npm run dev
+
+# Production build
+npm run build && npm start
 ```
 
-**4. Production Build**
-Compile the TypeScript code into production-ready JavaScript:
-```bash
-npm run build
-npm start
-```
+---
 
-## Interacting with the API
-
-**Example Request: Update Record Status**
-```bash
-curl -X PATCH http://localhost:3000/api/records/1054
--H "Content-Type: application/json"
--d '{
-  "status": "UNDER_REVIEW",
-  "updated_by": "system_worker",
-  "notes": "Automated pipeline transitioned record to review phase."
-}'
-```
-
-**Example Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "record_id": "1054",
-    "previous_status": "PENDING",
-    "current_status": "UNDER_REVIEW",
-    "timestamp": "2026-03-24T12:00:00Z"
-  }
-}
-```
+## 👨‍💻 Author & Engineering
+- **Author:** [Yevhen Shaforostov](https://github.com/yevhens-hue)
+- **Role:** AI Product Manager & Full-Stack AI Engineer at [Adsy.com](https://adsy.com)
